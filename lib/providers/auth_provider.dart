@@ -37,6 +37,24 @@ class AuthProvider extends ChangeNotifier {
     ),
   );
 
+  Future<void> updateProfile({
+    required String name,
+    required String phone,
+    required String city,
+  }) async {
+    final u = _user;
+    if (u == null) return;
+    _user = UserModel(
+      id: u.id,
+      name: name,
+      email: u.email,
+      phone: phone,
+      city: city,
+    );
+    await _service.saveUser(_user!);
+    notifyListeners();
+  }
+  
   Future<void> logout() async {
     await _service.logout();
     _user = null;
