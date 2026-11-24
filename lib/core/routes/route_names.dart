@@ -14,14 +14,20 @@ class RouteNames {
   static const String notificationDetail = '/notifications/detail';
 
   static const String mitigationDetail = '/mitigation/detail';
-  static const String emergencyContacts = '/emergency';
-  static const String goBag = '/go-bag';
+  static const String preparedness = '/mitigation/preparedness';
+  static const String emergencyContacts = '/emergency/contacts';
+  static const String evacuation = '/emergency/evacuation';
 
-  static const String reportForm = '/report/form';
-  static const String reportStatus = '/report/status';
+  static const String report = '/report';
+  static const String createReport = '/report/create';
+  static const String reportHistory = '/report/history';
 
   static const String campaignDetail = '/donation/detail';
   static const String payment = '/donation/payment';
+  static const String donationSuccess = '/donation/success';
   static const String donationHistory = '/donation/history';
   static const String createCampaign = '/donation/create';
+
+  static const String editProfile = '/profile/edit';
+  static const String settings = '/profile/settings';
 }

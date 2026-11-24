@@ -61,6 +61,12 @@ class AuthService {
     );
     return _fromAuthBody(body);
   }
+  
+  /// Simpan data profil terbaru (mock). Saat backend siap, panggil endpoint update profil.
+  Future<void> saveUser(UserModel user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kUser, jsonEncode(user.toJson()));
+  }
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
