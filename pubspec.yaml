@@ -1,6 +1,6 @@
 name: siaganusa
 description: "SiagaNusa - platform informasi dan respons bencana Indonesia."
-publish_to: "none"
+publish_to: 'none'
 
 version: 1.0.0+1
 
