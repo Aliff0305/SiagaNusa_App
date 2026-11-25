@@ -5,8 +5,17 @@ import 'package:siaganusa/services/api_service.dart';
 class TsunamiService {
   Future<List<TsunamiModel>> fetch() async {
     if (!ApiConstants.useMock) {
-      // Format InaTEWS belum diverifikasi. Sesuaikan parser saat endpoint jelas.
       final body = await ApiService.instance.get(ApiConstants.tsunamis);
+      final data = body is Map ? (body['data'] ?? body) : body;
+      if (data is Map && data['Infogempa'] is Map) {
+        final gempa = (data['Infogempa'] as Map)['gempa'];
+        if (gempa is List) {
+          return gempa.whereType<Map<String, dynamic>>().map(_fromJson).toList();
+        }
+        if (gempa is Map<String, dynamic>) {
+          return [_fromJson(gempa)];
+        }
+      }
       return ApiService.instance.asList(body).map(_fromJson).toList();
     }
     await Future.delayed(const Duration(milliseconds: 500));

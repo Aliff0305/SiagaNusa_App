@@ -6,6 +6,19 @@ class EarthquakeService {
   Future<List<EarthquakeModel>> fetch() async {
     if (!ApiConstants.useMock) {
       final body = await ApiService.instance.get(ApiConstants.earthquakes);
+      final data = body is Map ? (body['data'] ?? body) : body;
+      if (data is Map && data['Infogempa'] is Map) {
+        final gempa = (data['Infogempa'] as Map)['gempa'];
+        if (gempa is List) {
+          return gempa
+              .whereType<Map<String, dynamic>>()
+              .map(EarthquakeModel.fromBmkgJson)
+              .toList();
+        }
+        if (gempa is Map<String, dynamic>) {
+          return [EarthquakeModel.fromBmkgJson(gempa)];
+        }
+      }
       return ApiService.instance
           .asList(body)
           .map(EarthquakeModel.fromBmkgJson)
