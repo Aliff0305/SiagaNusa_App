@@ -5,8 +5,15 @@ import 'package:siaganusa/services/api_service.dart';
 class HotspotService {
   Future<List<HotspotModel>> fetch() async {
     if (!ApiConstants.useMock) {
-      // Format Sipongi belum diverifikasi. Sesuaikan parser saat endpoint jelas.
-      final body = await ApiService.instance.get(ApiConstants.hotspots);
+      final body = await ApiService.instance.get(ApiConstants.sipongiHotspot);
+      final rawData = body is Map ? (body['data'] ?? body) : body;
+      if (rawData is Map && rawData['features'] is List) {
+        final features = rawData['features'] as List;
+        return features
+            .whereType<Map<String, dynamic>>()
+            .map(_fromGeoJsonFeature)
+            .toList();
+      }
       return ApiService.instance.asList(body).map(_fromJson).toList();
     }
     await Future.delayed(const Duration(milliseconds: 700));
@@ -76,6 +83,36 @@ class HotspotService {
         'Suomi NPP VIIRS',
       ),
     ];
+  }
+
+  HotspotModel _fromGeoJsonFeature(Map<String, dynamic> feature) {
+    final props = (feature['properties'] as Map<String, dynamic>?) ?? const {};
+    final geom = (feature['geometry'] as Map<String, dynamic>?) ?? const {};
+    final coords = (geom['coordinates'] as List?) ?? const [];
+    final lng = coords.isNotEmpty ? double.tryParse('${coords[0]}') ?? 0.0 : 0.0;
+    final lat = coords.length > 1 ? double.tryParse('${coords[1]}') ?? 0.0 : 0.0;
+
+    final rawConf = props['confidence'] ?? props['confidence_level'] ?? 0;
+    final conf = int.tryParse('$rawConf') ??
+        (rawConf.toString().toLowerCase() == 'high'
+            ? 85
+            : rawConf.toString().toLowerCase() == 'medium'
+                ? 60
+                : 30);
+
+    return HotspotModel(
+      id: '${props['id'] ?? props['hs_id'] ?? feature['id'] ?? '${lat}_$lng'}',
+      province: '${props['nama_provinsi'] ?? props['provinsi'] ?? props['province'] ?? '-'}',
+      regency: '${props['kabkota'] ?? props['regency'] ?? '-'}',
+      latitude: lat,
+      longitude: lng,
+      confidence: conf,
+      detectedAt: DateTime.tryParse(
+            '${props['tanggal'] ?? props['tgl_hotspot'] ?? props['detected_at'] ?? ''}',
+          ) ??
+          DateTime.now(),
+      satellite: '${props['sumber'] ?? props['satelit'] ?? props['satellite'] ?? '-'}',
+    );
   }
 
   HotspotModel _fromJson(Map<String, dynamic> j) => HotspotModel(
