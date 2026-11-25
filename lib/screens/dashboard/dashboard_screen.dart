@@ -65,7 +65,18 @@ class DashboardScreen extends StatelessWidget {
                           color: AppColors.earthquake,
                           value: '${summary.earthquakeCount}',
                           label: 'Gempa 24 jam',
-                          onTap: () => dashboard.setTab(1),
+                          onTap: () {
+                            final q = disasters.latestEarthquake;
+                            if (q != null) {
+                              Navigator.pushNamed(
+                                context,
+                                RouteNames.disasterDetail,
+                                arguments: q,
+                              );
+                            } else {
+                              dashboard.setTab(1);
+                            }
+                          },
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -79,7 +90,20 @@ class DashboardScreen extends StatelessWidget {
                               ? 'Waspada'
                               : 'Peringatan',
                           label: 'Status tsunami',
-                          onTap: () => dashboard.setTab(1),
+                          onTap: () {
+                            final t = disasters.all
+                                .where((d) => d.type == DisasterType.tsunami)
+                                .firstOrNull;
+                            if (t != null) {
+                              Navigator.pushNamed(
+                                context,
+                                RouteNames.disasterDetail,
+                                arguments: t,
+                              );
+                            } else {
+                              dashboard.setTab(1);
+                            }
+                          },
                         ),
                       ),
                       const SizedBox(width: 10),
