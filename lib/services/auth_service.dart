@@ -62,13 +62,24 @@ class AuthService {
     return _fromAuthBody(body);
   }
   
-  /// Simpan data profil terbaru (mock). Saat backend siap, panggil endpoint update profil.
+  /// Simpan data profil terbaru. Saat backend aktif, panggil endpoint update profil.
   Future<void> saveUser(UserModel user) async {
+    if (!ApiConstants.useMock) {
+      await ApiService.instance.put(
+        ApiConstants.userProfile,
+        data: {'name': user.name, 'phone': user.phone, 'city': user.city},
+      );
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kUser, jsonEncode(user.toJson()));
   }
 
   Future<void> logout() async {
+    if (!ApiConstants.useMock) {
+      try {
+        await ApiService.instance.post(ApiConstants.logout);
+      } catch (_) {}
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kUser);
     await prefs.remove(_kToken);

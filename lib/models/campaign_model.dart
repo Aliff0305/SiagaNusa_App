@@ -45,6 +45,24 @@ class CampaignModel {
     this.allocation = const [],
   });
 
+  factory CampaignModel.fromJson(Map<String, dynamic> json) => CampaignModel(
+    id: (json['id'] ?? '').toString(),
+    title: (json['title'] ?? '').toString(),
+    location: (json['location'] ?? '').toString(),
+    type: DisasterType.values.firstWhere(
+      (e) => e.name == json['type'],
+      orElse: () => DisasterType.earthquake,
+    ),
+    description: (json['description'] ?? '').toString(),
+    organizer: (json['organizer'] ?? '').toString(),
+    target: double.tryParse((json['target'] ?? json['target_amount'] ?? 0).toString()) ?? 0,
+    collected: double.tryParse((json['collected'] ?? json['collected_amount'] ?? 0).toString()) ?? 0,
+    donors: int.tryParse((json['donors'] ?? 0).toString()) ?? 0,
+    deadline: DateTime.tryParse((json['deadline'] ?? '').toString()) ?? DateTime.now(),
+    verified: json['verified'] == true,
+    verifiedBy: (json['verified_by'] ?? json['verifiedBy'] ?? '').toString(),
+  );
+
   double get progress => target <= 0 ? 0 : (collected / target).clamp(0, 1);
   int get daysLeft => deadline.difference(DateTime.now()).inDays.clamp(0, 9999);
 

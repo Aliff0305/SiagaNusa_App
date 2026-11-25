@@ -1,8 +1,17 @@
+import 'package:siaganusa/core/constants/api_constants.dart';
 import 'package:siaganusa/models/disaster_model.dart';
 import 'package:siaganusa/models/notification_model.dart';
+import 'package:siaganusa/services/api_service.dart';
 
 class NotificationService {
   Future<List<NotificationModel>> fetch() async {
+    if (!ApiConstants.useMock) {
+      final res = await ApiService.instance.get(ApiConstants.notifications);
+      final list = (res is Map ? res['data'] : res) as List? ?? [];
+      return list
+          .map((e) => NotificationModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
     await Future.delayed(const Duration(milliseconds: 400));
     final now = DateTime.now();
     // DATA CONTOH. Nanti diganti dari backend / push notification.
@@ -46,5 +55,10 @@ class NotificationService {
         isRead: true,
       ),
     ];
+  }
+
+  Future<void> markAsRead(String id) async {
+    if (ApiConstants.useMock) return;
+    await ApiService.instance.patch('${ApiConstants.notifications}/$id/read');
   }
 }

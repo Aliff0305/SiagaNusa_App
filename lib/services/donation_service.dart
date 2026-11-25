@@ -1,11 +1,20 @@
+import 'package:siaganusa/core/constants/api_constants.dart';
 import 'package:siaganusa/models/campaign_model.dart';
 import 'package:siaganusa/models/disaster_model.dart';
 import 'package:siaganusa/models/donation_model.dart';
+import 'package:siaganusa/services/api_service.dart';
 
 class DonationService {
   final List<DonationModel> _history = [];
 
   Future<List<CampaignModel>> fetchCampaigns() async {
+    if (!ApiConstants.useMock) {
+      final res = await ApiService.instance.get(ApiConstants.campaigns);
+      final list = (res is Map ? res['data'] : res) as List? ?? [];
+      return list
+          .map((e) => CampaignModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
     await Future.delayed(const Duration(milliseconds: 600));
     final now = DateTime.now();
     // DATA CONTOH. Kampanye asli harus diverifikasi BNPB/BPBD/mitra kemanusiaan.

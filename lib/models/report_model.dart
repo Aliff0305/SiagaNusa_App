@@ -29,4 +29,18 @@ class ReportModel {
     this.photoName,
     this.note,
   });
+
+  factory ReportModel.fromJson(Map<String, dynamic> json) => ReportModel(
+    id: (json['id'] ?? '').toString(),
+    category: (json['category'] ?? json['disaster_type'] ?? '').toString(),
+    location: (json['location'] ?? json['location_name'] ?? '').toString(),
+    description: (json['description'] ?? '').toString(),
+    photoName: json['photo_name']?.toString() ?? json['image']?.toString(),
+    createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()) ?? DateTime.now(),
+    status: ReportStatus.values.firstWhere(
+      (e) => e.name == json['status'],
+      orElse: () => ReportStatus.pending,
+    ),
+    note: json['note']?.toString(),
+  );
 }

@@ -16,6 +16,12 @@ class ApiService {
   Future<dynamic> post(String path, {Object? data}) =>
       _client.post(path, data: data);
 
+  Future<dynamic> put(String path, {Object? data}) =>
+      _client.put(path, data: data);
+
+  Future<dynamic> patch(String path, {Object? data}) =>
+      _client.patch(path, data: data);
+
   /// Ambil list dari respons. Bentuk respons backend BELUM final:
   /// mendukung `[...]` maupun `{ "data": [...] }`.
   List<Map<String, dynamic>> asList(dynamic body) {

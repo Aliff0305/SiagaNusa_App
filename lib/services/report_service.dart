@@ -1,4 +1,6 @@
+import 'package:siaganusa/core/constants/api_constants.dart';
 import 'package:siaganusa/models/report_model.dart';
+import 'package:siaganusa/services/api_service.dart';
 
 class ReportService {
   final List<ReportModel> _store = [
@@ -22,8 +24,15 @@ class ReportService {
   ];
 
   Future<List<ReportModel>> fetch() async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    return List.unmodifiable(_store);
+    if (ApiConstants.useMock) {
+      await Future.delayed(const Duration(milliseconds: 400));
+      return List.unmodifiable(_store);
+    }
+    final res = await ApiService.instance.get(ApiConstants.reports);
+    final list = (res is Map ? res['data'] : res) as List? ?? [];
+    return list
+        .map((e) => ReportModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<ReportModel> submit({
@@ -32,17 +41,30 @@ class ReportService {
     required String description,
     String? photoName,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 900));
-    final report = ReportModel(
-      id: 'r${DateTime.now().millisecondsSinceEpoch}',
-      category: category,
-      location: location,
-      description: description,
-      photoName: photoName,
-      createdAt: DateTime.now(),
-      status: ReportStatus.pending,
+    if (ApiConstants.useMock) {
+      await Future.delayed(const Duration(milliseconds: 900));
+      final report = ReportModel(
+        id: 'r${DateTime.now().millisecondsSinceEpoch}',
+        category: category,
+        location: location,
+        description: description,
+        photoName: photoName,
+        createdAt: DateTime.now(),
+        status: ReportStatus.pending,
+      );
+      _store.insert(0, report);
+      return report;
+    }
+    final res = await ApiService.instance.post(
+      ApiConstants.reports,
+      data: {
+        'category': category,
+        'location': location,
+        'description': description,
+        if (photoName != null) 'photo_name': photoName,
+      },
     );
-    _store.insert(0, report);
-    return report;
+    final data = (res is Map && res['data'] != null) ? res['data'] : res;
+    return ReportModel.fromJson(data as Map<String, dynamic>);
   }
 }
